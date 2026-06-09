@@ -260,6 +260,14 @@
         padding: 2px 5px;
       }
 
+      .markdown-fallback {
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: var(--ink);
+        font: inherit;
+      }
+
       .loading {
         color: var(--muted);
       }
@@ -376,7 +384,14 @@
           return response.text();
         })
         .then((markdown) => {
-          content.innerHTML = marked.parse(markdown);
+          if (!window.marked) {
+            const fallback = document.createElement("pre");
+            fallback.className = "markdown-fallback";
+            fallback.textContent = markdown;
+            content.replaceChildren(fallback);
+            return;
+          }
+          content.innerHTML = window.marked.parse(markdown);
           buildToc();
         })
         .catch((error) => {
